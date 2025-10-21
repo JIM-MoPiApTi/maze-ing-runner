@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -530,6 +531,8 @@ int main(void)
 
     /* Loop until the user closes the window */
     Help();
+    double previousTime = glfwGetTime();
+    int frameCount = 0;
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
@@ -543,6 +546,22 @@ int main(void)
         
         glfwSwapBuffers(window);
         glfwPollEvents();
+        double currentTime = glfwGetTime();
+        frameCount++;
+        if (currentTime - previousTime >= 1.0)
+        {
+            // Display the frame count here any way you want.
+
+            char stroke[30] = "Chiken Jokey!  FPS: ";
+            char fps[10];
+            snprintf(fps, 10, "%d", frameCount);
+            strcat(stroke,fps);
+            
+            glfwSetWindowTitle(window, stroke);
+
+            frameCount = 0;
+            previousTime = currentTime;
+        }
     }
 
     glfwTerminate();
