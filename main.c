@@ -42,6 +42,7 @@ bool easy = 0;
 
 Cell map[mapW][mapH];
 Player hero = {0,0,0};
+Player zombie;
 GenCell Exit;
 
 int next_cell(int x, int y) {
@@ -80,6 +81,36 @@ int help_next(int x, int y) {
     }
     if (y < mapH - 1 && map[x][y + 1].unvisited && !(map[x][y].Down)) {
         return 4;
+    }
+    return 0;
+}
+
+int zombie_AI() {
+    bool step = 1;
+    while (step) {
+
+        int way = rand() % 4;
+
+        if (way==0 && !(map[zombie.x][zombie.y].Left)) {
+            zombie.x -= 1;
+            step = 0;
+            return 1;
+        }
+        if (way == 1 && !(map[zombie.x][zombie.y].Up)) {
+            zombie.y -= 1;
+            step = 0;
+            return 2;
+        }
+        if (way == 2 && !(map[zombie.x][zombie.y].Right)) {
+            zombie.x += 1;
+            step = 0;
+            return 3;
+        }
+        if (way == 3 && !(map[zombie.x][zombie.y].Down)) {
+            zombie.y += 1;
+            step = 0;
+            return 4;
+        }
     }
     return 0;
 }
@@ -191,6 +222,18 @@ void Generate() {
          }
          printf("\n");
      }*/
+
+    //GENERATE ZOMBIE
+    bool zombi = 1;
+    while (zombi) {
+        int zx = rand() % (mapW);
+        int zy = rand() % (mapH);
+        if (hero.x != zx && hero.y != zx) {
+            zombie.x = zx;
+            zombie.y = zy;
+            zombi = 0;
+        }
+    }
 }
 
 void Help() {
@@ -367,6 +410,20 @@ void Draw_Coin()
     glEnd();
 }
 
+void Draw_Zombie()
+{
+    glBegin(GL_TRIANGLE_STRIP);
+    glColor3f(0.0f, 0.36f, 0.05f);
+    glVertex2f(mapS / 3, 2 * mapS / 3);
+    glColor3f(0.04f, 0.20f, 0.06f);
+    glVertex2f(2 * mapS / 3, 2 * mapS / 3);
+    glColor3f(0.04f, 0.20f, 0.06f);
+    glVertex2f(mapS / 3, mapS / 3);
+    glColor3f(0.0f, 0.36f, 0.05f);
+    glVertex2f(2 * mapS / 3, mapS / 3);
+    glEnd();
+}
+
 void Draw_Player()
 {
     glBegin(GL_TRIANGLE_STRIP);
@@ -464,12 +521,14 @@ void Game_Show()
                     Draw_Cell(i, j);
                     Draw_Walls(i, j);
                     if (map[i][j].Coin) Draw_Coin();
+                    if (zombie.x == i && zombie.y == j) Draw_Zombie();
                 }
             }
             else {
                 Draw_Cell(i, j);
                 Draw_Walls(i, j);
                 if (map[i][j].Coin) Draw_Coin();
+                if (zombie.x == i && zombie.y == j) Draw_Zombie();
             }
             if (easy && map[i][j].unvisited) {
                 Draw_Help(i, j);
@@ -561,6 +620,8 @@ int main(void)
 
             frameCount = 0;
             previousTime = currentTime;
+
+            zombie_AI();
         }
     }
 
